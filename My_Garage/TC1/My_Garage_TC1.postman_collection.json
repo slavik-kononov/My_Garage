@@ -1,0 +1,353 @@
+{
+	"info": {
+		"_postman_id": "b64ebbce-724f-4999-9429-10a0816a6bdf",
+		"name": "My Garage TC1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"function identifier() {\r",
+							"  var text = \"\";\r",
+							"  var possible = \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\";\r",
+							"\r",
+							"  for (var i = 0; i < 32; i++)\r",
+							"    text += possible.charAt(Math.floor(Math.random() * possible.length));\r",
+							"\r",
+							"  return text;\r",
+							"}\r",
+							"\r",
+							"pm.environment.set(\"id\", identifier());\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Проверка на код ответа\r",
+							"pm.test(\"Status code is 200 - OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Проверка наличия Body в респонсе, даже если это пустой массив. Вариант1\r",
+							"pm.test(\"Body is not Empty, but has an empty JSON - OK, test1\", function(){\r",
+							"    pm.expect(responseBody).to.not.equal(null);\r",
+							"})\r",
+							"//Проверка наличия Body в респонсе, даже если это пустой массив. Вариант2\r",
+							"tests[\"Body is not Empty, but has an empty JSON - OK, test2\"] = (responseBody!==null)\r",
+							"\r",
+							"//Вариант 1 на проверку пустого JSON\r",
+							"pm.test(\"JSON array is empty-OK, test 1\", function()\r",
+							"{\r",
+							"var jsonData = pm.response.json().length;\r",
+							"pm.expect(jsonData).to.eql(0)\r",
+							"});\r",
+							"//Вариант 2 на проверку пустого JSON\r",
+							"pm.test(\"JSON array is empty-OK, test 2\",function(){\r",
+							"var d=JSON.parse(responseBody).length\r",
+							"pm.expect(d).to.eql(0);\r",
+							"})\r",
+							"//Вариант 3 на проверку пустого JSON\r",
+							"let parsedResponseBody = JSON.parse(responseBody).length;\r",
+							"tests['JSON array is empty-OK, test 3'] = (parsedResponseBody === 0);\r",
+							"//console.log(parsedResponseBody)\r",
+							"\r",
+							"postman.setNextRequest(\"POST add new mmy\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://mygarage-api.devzone.net/api/v1/mygarage/guest?identifier={{id}}",
+					"protocol": "https",
+					"host": [
+						"mygarage-api",
+						"devzone",
+						"net"
+					],
+					"path": [
+						"api",
+						"v1",
+						"mygarage",
+						"guest"
+					],
+					"query": [
+						{
+							"key": "identifier",
+							"value": "{{id}}"
+						},
+						{
+							"key": "identifier",
+							"value": "7dPetLYhwdX7jm0Sp03FPEFnHO3ssQQN",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST add new mmy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Проверка статус кода ответа\r",
+							"var a=pm.response.code;\r",
+							"console.log(a)\r",
+							"if(a==422){\r",
+							"    pm.test(\"WARNING!!! Status code is 422 - OK, but please check avalibility MMY_id=\"+pm.environment.get(\"MMY_ID\")+\" in catalog_mmy\"\r",
+							") \r",
+							"        } else{\r",
+							"\r",
+							"           \r",
+							"            \r",
+							"pm.test(\"Status code is 201 - OK\"), function()\r",
+							"{\r",
+							" pm.response.to.have.status(201);\r",
+							"}\r",
+							"\r",
+							"pm.test(\"MMY_ID is \"+pm.environment.get(\"MMY_ID\")+\" in catalog_mmy\"); \r",
+							"//Проверка Body в респонсе\r",
+							"tests[\"Body is not empty\"]=(responseBody !== null)\r",
+							"\r",
+							"//Проверка не пустого JSON в Body респонса\r",
+							"tests[\"JSON array is not empty\"] = (responseBody.length >=1)\r",
+							"\r",
+							"//Проверка общей структуры выходного JSON и типов данных для каждой строки\r",
+							"const scheme = {\r",
+							"    \"type\":\"object\",\r",
+							"    \"required\":[\r",
+							"        \"year_id\",\r",
+							"    \"make\",\r",
+							"    \"make_id\",\r",
+							"    \"model\",\r",
+							"    \"model_id\",\r",
+							"    \"year\",\r",
+							"    \"vehicle_type_id\",\r",
+							"    \"vehicle_sub_type_id\",\r",
+							"    \"date\",\r",
+							"    \"removed\",\r",
+							"    \"type\"\r",
+							"\r",
+							"    ],\r",
+							"    \"properties\":{\r",
+							"        \"year_id\":{\"type\":\"number\"},\r",
+							"        \"make\":{\"type\":\"string\"},\r",
+							"        \"make_id\":{\"type\":\"number\"},\r",
+							"         \"model\":{\"type\":\"string\"},\r",
+							"        \"model_id\":{\"type\":\"number\"},\r",
+							"         \"year\":{\"type\":\"number\"},\r",
+							"        \"vehicle_type_id\":{\"type\":\"number\"},\r",
+							"        \"vehicle_sub_type_id\":{\"type\":\"number\"},\r",
+							"        \"date\":{\"type\":\"number\"},\r",
+							"         \"removed\":{\"type\":\"boolean\"},\r",
+							"        \"type\":{\"type\":\"string\"},\r",
+							"    }\r",
+							"}\r",
+							"pm.test(\"JSON structure in response is valid\",function()\r",
+							"{    pm.response.to.have.jsonSchema(scheme)\r",
+							"})\r",
+							"\r",
+							"//Проверка значений в JSON для каждой строки\r",
+							"pm.test(\"JSON values in line is true, mmy_id from request equals year_id from response\",function(){\r",
+							"var Data = pm.response.json();\r",
+							"var MMY =request.data.mmy_id;\r",
+							"pm.expect(Data.year_id).to.not.eql(null);\r",
+							"pm.expect(Data.year_id).be.above(0);\r",
+							"pm.expect(Data.year_id).to.eql(Number(MMY));\r",
+							"pm.expect(Data.make).to.not.eql(null);\r",
+							"pm.expect(Data.make_id).to.not.eql(null);\r",
+							"pm.expect(Data.make_id).be.above(0);\r",
+							"pm.expect(Data.model).to.not.eql(null);\r",
+							"pm.expect(Data.model_id).to.not.eql(null);\r",
+							"pm.expect(Data.model_id).be.above(0);\r",
+							"pm.expect(Data.year).be.above(1902);\r",
+							"pm.expect(Data.year).to.not.eql(null);\r",
+							"pm.expect(Data.vehicle_type_id).to.not.eql(null);\r",
+							"pm.expect(Data.vehicle_type_id).be.above(0);\r",
+							"pm.expect(Data.vehicle_sub_type_id).to.not.eql(null);\r",
+							"pm.expect(Data.vehicle_sub_type_id).be.above(0);\r",
+							"pm.expect(Data.date).to.not.eql(null);\r",
+							"pm.expect(Data.date).be.above(0);\r",
+							"pm.expect(Data.removed).to.not.eql(null);\r",
+							"pm.expect(Data.type).to.not.eql(null);\r",
+							"})\r",
+							"\r",
+							"//Проверка значений для mmy_id:3387\r",
+							"//pm.test(\"Check response values from mmy_id=3387 (GMC Yukon 1992)\",function()\r",
+							"//{\r",
+							"//var jsonData=pm.response.json();\r",
+							"//var MMY =request.data.mmy_id;\r",
+							"//pm.expect(jsonData.year_id).to.be.eql(Number(MMY));\r",
+							"//pm.expect(jsonData.make).to.be.eql(\"GMC\");\r",
+							"//pm.expect(jsonData.make_id).to.be.eql(194);\r",
+							"//pm.expect(jsonData.model_id).to.be.eql(2);\r",
+							"//pm.expect(jsonData.model).to.be.eql(\"Yukon\");\r",
+							"//pm.expect(jsonData.year).to.be.eql(1992);\r",
+							"//pm.expect(jsonData.vehicle_type_id).to.be.eql(15);\r",
+							"//pm.expect(jsonData.vehicle_sub_type_id).to.be.eql(18);\r",
+							"//pm.expect(jsonData.removed).to.be.eql(false);\r",
+							"//pm.expect(jsonData.type).to.be.eql(\"history\");\r",
+							"//})\r",
+							"\r",
+							"//Проверка mmy_id на нечисловое значение\r",
+							"pm.test(\"mmy_id in request is number\",function()\r",
+							"{pm.expect(request.data.mmy_id).to.be.a(\"number\")\r",
+							"})\r",
+							"\r",
+							"//Занесение date в переменную окружения\r",
+							"//var dateAddMMYfirst = JSON.parse(responseBody).date\r",
+							"//pm.environment.set(\"date1\", dateAddMMYfirst);\r",
+							"\r",
+							"\r",
+							"        }        \r",
+							"\r",
+							"postman.setNextRequest(\"GET finish\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"    var n1=Math.floor(Math.random()*(12241-1)+1);\r",
+							"    var n2=Math.floor(Math.random()*(182333-109917)+109917);\r",
+							"    \r",
+							"    var result;\r",
+							"    if(Math.random()>0.5){\r",
+							"        result=n1;\r",
+							"    } else {\r",
+							"        result=n2;\r",
+							"   }\r",
+							"    //console.log(result)\r",
+							"\r",
+							"pm.environment.set(\"MMY_ID\", result);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "identifier",
+							"value": "e1173effa18ac47a483856f0e5ba6200",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "mmy_id",
+							"value": "{{MMY_ID}}",
+							"type": "text"
+						},
+						{
+							"key": "mmy_id",
+							"value": "11545",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "https://mygarage-api.devzone.net/api/v1/mygarage/guest?identifier={{id}}",
+					"protocol": "https",
+					"host": [
+						"mygarage-api",
+						"devzone",
+						"net"
+					],
+					"path": [
+						"api",
+						"v1",
+						"mygarage",
+						"guest"
+					],
+					"query": [
+						{
+							"key": "identifier",
+							"value": "{{id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET finish",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 test1\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var a=pm.response.json().length\r",
+							"console.log(a)\r",
+							"\r",
+							"if(pm.response.json().length<6){\r",
+							"    postman.setNextRequest(\"POST add new mmy\");\r",
+							"} else {\r",
+							"   postman.setNextRequest(null); \r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://mygarage-api.devzone.net/api/v1/mygarage/guest?identifier={{id}}",
+					"protocol": "https",
+					"host": [
+						"mygarage-api",
+						"devzone",
+						"net"
+					],
+					"path": [
+						"api",
+						"v1",
+						"mygarage",
+						"guest"
+					],
+					"query": [
+						{
+							"key": "identifier",
+							"value": "{{id}}"
+						},
+						{
+							"key": "identifier",
+							"value": "7dPetLYhwdX7jm0Sp03FPEFnHO3ssQQN",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
